@@ -1,0 +1,10 @@
+Package: MtlAnalysis
+Title: Meta-learning automated ''analysis''
+Version: 0.0.1
+Authors@R:  person("Rafael", "Gomes Mantovani", email = "rgmantovani@gmail.com", role = c("aut", "cre"))
+Description: 'MtlAnalysis' is an automated code to generate meta-learning graphical analysis.
+Depends: R (>= 3.2), mlr(>= 2.9), ggplot2, reshape2, checkmate, partykit
+License: LGPL-3
+Encoding: UTF-8
+LazyData: true
+BugReports: https://github.com/rgmantovani/MtlAnalysis
