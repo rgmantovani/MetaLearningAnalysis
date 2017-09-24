@@ -72,8 +72,49 @@ runAnalysis = function(subdir) {
   #----------------------
   #----------------------
 
-  # Tree plots
+  cat(" - Meta-trees plot \n")
   getTreePlot()  
+
+
+  #----------------------
+  # RF attr importance
+  #----------------------
+  
+  rf.files = list.files(path = "data/mtl/classif_svm_169d_99_average/classif.randomForest/with_norm/none/10-CV/", 
+    full.names=TRUE, recursive=TRUE, pattern = "ret")
+  obj5 = getRFGiniPlot(rf.files= rf.files)
+  ggsave(obj5$g, file = "output/svm99_RfGini_Plot.pdf", dpi = 500, units = "in", 
+    width = 7.2, height = 2.65)
+
+
+  rf.files = list.files(path = "data/mtl/classif_svm_169d_95_average/classif.randomForest/with_norm/none/10-CV/", 
+    full.names=TRUE, recursive=TRUE, pattern = "ret")
+  obj6 = getRFGiniPlot(rf.files= rf.files)
+  ggsave(obj6$g, file = "output/svm95_RfGini_Plot.pdf", dpi = 500, units = "in", 
+    width = 7.2, height = 2.65)
+
+
+  rf.files = list.files(path = "data/mtl/classif_svm_169d_90_average/classif.randomForest/with_norm/none/10-CV/", 
+    full.names=TRUE, recursive=TRUE, pattern = "ret")
+  obj7 = getRFGiniPlot(rf.files= rf.files)
+  ggsave(obj7$g, file = "output/svm90_RfGini_Plot.pdf", dpi = 500, units = "in", 
+    width = 7.2, height = 2.65)
+
+
+  df.list = list(obj5$sub.df, obj6$sub.df, obj7$sub.df)
+
+  g8 = getRFGiniPlotCombined(df.list = df.list)
+  ggsave(g8, file = "output/RF_Gini_Combined.pdf", dpi = 500, units = "in", 
+    width = 7.1, height = 2.84)
+ 
+  #----------------------
+  #----------------------
+
+  #  hit and misses, two charts (one per class) = heatmap
+
+  #----------------------
+  #----------------------
+
   
 }
 
