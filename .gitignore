@@ -1,16 +1,15 @@
 .Rproj.user
 .Rhistory
 .RData
-.csv
 .txt
 .zip
 
 TODO
 
-data/
 info/
 output/
 
 MtlAnalysis.Rproj
 runBaselines.R
 testing.R
+.DS_Store
