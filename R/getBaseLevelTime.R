@@ -1,12 +1,12 @@
 # -------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------
 
-getBaseLevelData = function(algo, technique, option = "average") {
+getBaseLevelTime = function(algo, technique) {
 
   tmp = list.files(path = paste0("data/tuning/"))
   
   aux = lapply(tmp, function(dataset) {
-    ret = getDatasetResults(algo = algo, dataset = dataset, option = option)
+    ret = getDatasetTime(algo = algo, dataset = dataset)
   })
 
   cl.list = lapply(aux, function(df) {
@@ -20,11 +20,11 @@ getBaseLevelData = function(algo, technique, option = "average") {
 #----------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------
 
-getDatasetResults = function(algo, dataset, option) {
+getDatasetTime = function(algo, dataset) {
 
   tun.techniques = list.files(paste0("data/tuning/", dataset, "/", algo))
   aux.tun = lapply(tun.techniques, function(tun) {
-    return(getTuningResults(algo = algo, dataset = dataset, tun = tun, option = option))
+    return(getTuningTime(algo = algo, dataset = dataset, tun = tun))
   })
 
   df = data.frame(do.call("cbind", aux.tun))
@@ -36,11 +36,11 @@ getDatasetResults = function(algo, dataset, option) {
 # #----------------------------------------------------------------------------------------------------------------
 # #----------------------------------------------------------------------------------------------------------------
 
-getTuningResults = function(algo, dataset, tun, option) {
+getTuningTime = function(algo, dataset, tun) {
 
   reps = list.files(path = paste("data/tuning/", dataset, algo, tun, sep = "/"))
   aux.rep = lapply(reps, function(rep) {
-    return(getRepResults(algo = algo, dataset = dataset, tun = tun, rep = rep, option = option))
+    return(getRepTime(algo = algo, dataset = dataset, tun = tun, rep = rep))
   })
   
   ret = unlist(aux.rep)
@@ -50,32 +50,22 @@ getTuningResults = function(algo, dataset, tun, option) {
 #----------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------
 
-getRepResults = function(algo, dataset, tun, rep, option) {
+getRepTime = function(algo, dataset, tun, rep) {
 
   job = paste0("data/tuning/", dataset, "/", algo, "/", tun, "/", rep,
     "/perf_", dataset, ".RData")
 
-  if(option == "all") {
-    
     if(!file.exists(job)) {
-      return(rep(NA, 10))
-    }
-  
-    suppressWarnings(load(job))
-    values = 1 - ret.perf$ber
-  
-  } else {
-  
-    if(!file.exists(job)) {
-      return(NA)
-    }
-    
-    suppressWarnings(load(job))
-    values = mean(1 - ret.perf$ber, na.rm = TRUE)
-    
+    return(NA)
   }
-  return(values)
+    
+  suppressWarnings(load(job))
+  value = mean(ret.perf$timetrain + ret.perf$timepredict)
+
+  return(value)
 }
+
+
 
 # -------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------

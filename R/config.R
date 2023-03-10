@@ -1,14 +1,9 @@
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
 
-AVAILABLE.MEASURES = c("auc", "acc", "bac", "timetrain", "timepredict", "timeboth")
+CUSTOM.COLORS = c("black", "purple", "green", "darkorange", "red", 
+  "darkblue", "darkcyan", "darkgreen", "darkmagenta", "darkgoldenrod", 
+  "antiquewhite4", "magenta")
 
-TECHNIQUES = c("defaults", "RS")
-
-CUSTOM.COLORS = c("blue", "red", "darkgreen", "purple", "darkgoldenrod")
-# c("black", "purple", "green", "darkorange", "red", 
-  # "darkblue", "darkcyan", "darkgreen", "darkmagenta", "darkgoldenrod", 
-  # "antiquewhite4")
+CUSTOM.SHAPES = c(16,18,3,8,4,10,12,16,18,3,8,4,10,12)
 
 SIMPLE = c("classes", "attributes", "numeric", "nominal", "samples", "dimension", "numRate", 
   "nomRate", "symbols_min", "symbols_max", "symbols_mean", "symbols_sd", "symbols_sum",
@@ -25,6 +20,3 @@ MODEL = c("nodes", "leaves", "nodeAtr", "nodeIns", "leafCor", "lev_min", "lev_ma
 LANDMARKING = c("nb", "stump_min", "stump_max", "stump_mean", "stump_sd", "stMinGain", "stRand", "nn")
 
 NEW.NAMES = c("dataset", SIMPLE, STATISTICS, INFO, MODEL, LANDMARKING)
-
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------

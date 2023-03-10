@@ -1,6 +1,33 @@
 #--------------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
 
+getRFGiniData = function(file) {
+
+  load(file)
+  bmr = res
+
+  models.list = getBMRModels(bmr)[[1]][[1]]
+
+  aux = lapply(models.list, function(obj) {
+    model = mlr::getLearnerModel(obj, more.unwrap=TRUE)
+    return(t(model$importance))
+  })
+
+  df = data.frame(do.call("rbind", aux))
+  ret = colMeans(df)
+  ret = data.frame(ret)
+  # rownames(ret)[1:57] = NEW.NAMES[-1]
+  colnames(ret) = c("gini")
+  ret$mfeat = rownames(ret)
+  rownames(ret) = NULL
+
+  return(ret)
+
+}
+
+#--------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
+
 getRFGiniPlot = function(rf.files) {
 
   aux = lapply(rf.files, function(file) {
@@ -25,60 +52,26 @@ getRFGiniPlot = function(rf.files) {
   ids = which(sub.df$avg.gini > 1)
   sub.df$top[ids] = 1
 
+  sub.df$mfeat = gsub(x = sub.df$mfeat, pattern = "statistical.|inftheo.|modelbased.|simple.|landmarking.",
+    replacement = "")
+
+  sub.df$mfeat = gsub(x = sub.df$mfeat, pattern = "attribute",
+    replacement = "attr")
+
+  sub.df$mfeat = gsub(x = sub.df$mfeat, pattern = "normalized",
+    replacement = "norm")
+
   sub.df$mfeat = factor(sub.df$mfeat, levels = sub.df$mfeat)
 
-  g = ggplot(data = sub.df, mapping = aes(x = mfeat, y = avg.gini, fill = top))
-  g = g + geom_bar(stat = "identity", width = 0.8)
-  g = g + geom_hline(yintercept=1, linetype="dotted", colour="red") + theme_bw()
-  g = g + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 5))
-  g = g + xlab("Meta-feature") + ylab("Avg Gini index \n(Relative Importance)")
-  g = g + guides(fill = FALSE)
+  g = ggplot(data = sub.df, mapping = aes(x = mfeat, y = avg.gini, fill = top, group = 1))
+  g = g + geom_line() + theme_bw() + geom_point(size = 2)
+  g = g + geom_hline(yintercept=1, linetype="dotted", colour="black") 
+  g = g + theme(axis.text.x = element_text(angle = 90, vjust = 0.3, hjust = 1, size = 7))
+  g = g + xlab("Meta-feature") + ylab("Avg MeanDecreaseGini index \n(Relative Importance)")
+  g = g + guides(fill=FALSE, colour=FALSE, shape=FALSE, linetype=FALSE)
 
   obj = list(g = g, sub.df = sub.df)
   return(obj)
-
-}
-
-#--------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------
-
-getRFGiniPlotCombined = function(df.list) {
-
-  tmp = lapply(df.list, function(df) {
-    return(df[,c("mfeat", "avg.gini")])
-  })
-
-  mdf = Reduce(function(...) merge(..., all=T, by="mfeat"), tmp)
-  colnames(mdf)[2:4] = c("svm_99", "svm_95", "svm_90")
-
-  mdf$avg = apply(mdf[,-1], 1, mean)
-  mdf = mdf[order(mdf$avg, decreasing=TRUE),]
-  mdf$mfeat = factor(mdf$mfeat, levels = mdf$mfeat)
-
-  df = melt(mdf, id.vars=c(1,5))
-
-  g = ggplot(data = df, mapping = aes(x = mfeat, y = value, colour = variable,
-    group = variable))
-  g = g + geom_line() + theme_bw()
-  g = g + xlab("Meta-feature") + ylab("Avg Gini index \n(Relative Importance)")
-  g = g + geom_hline(yintercept=1, linetype="dotted", colour="black")
-  g = g + scale_colour_manual("Meta-dataset", values=c("red","green", "blue"))
-  g = g + theme(legend.position = c(.92,.8), 
-    legend.background = element_rect(colour = "black"))
-  g = g + theme(legend.key.height = unit(0.3, "cm"))
-  g = g + theme(legend.text = element_text(size = 8), legend.title = element_text(size=9))
-  g = g + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 5))
-
-  # draw a bullet if the avg is bigger than 1 (for all the meta-datasets)
-  for(i in 1:nrow(mdf)) {
-    if(mdf$avg[i] > 1 ) {
-      sp = data.frame(mfeat = mdf$mfeat[i], value = -0.15, variable = "svm_99", avg = mdf$avg[i])
-      g  = g + geom_point(data = sp, aes(x = mfeat, y = value), size = 1, colour = "black")
-    }
-  }
-  g = g + guides(shape=FALSE) +  guides(fill = FALSE)
-
-  return(g)
 }
 
 #--------------------------------------------------------------------------------------------------
