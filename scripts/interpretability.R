@@ -172,33 +172,19 @@ fig_list = lapply(features, function(feat.name) {
 # CART SHAP
 # -------------
 
-dataX   = J48.data[,x_names]
+dataX   = rpart.data[,x_names]
 dataX   = as.matrix(dataX[,-1])
-
+target_var = as.numeric(rpart.data[,y_name])-1 
 # 0 - Defaults, 1 - Tuning
-target_var = as.numeric(J48.data[,y_name])-1 
 
- # ‘binary:logistic’ logistic regression for binary
-                  # classification. Output probability.
- # nrounds: max number of boosting iterations.
-
-param_list = list(objective = "binary:logistic", # for classification
-  eta = 0.3, max_depth = 10, gamma = 0.01, subsample = 1)
-
-xgb_model = xgboost::xgboost(data = dataX, label= target_var, verbose = TRUE, 
+rpart_xgb_model = xgboost::xgboost(data = dataX, label= target_var, verbose = TRUE, 
 	nthread = parallel::detectCores() - 2, params = param_list, nrounds = 50)
                         
-# To return the SHAP values and ranked features by mean|SHAP|
-shap_values = shap.values(xgb_model = xgb_model, X_train = dataX)
-# The ranked features by mean |SHAP| -> shap_values$mean_shap_score
+shap_values = shap.values(xgb_model = rpart_xgb_model, X_train = dataX)
+shap_long   = shap.prep(xgb_model = rpart_xgb_model, X_train = dataX)
 
-shap_long = shap.prep(xgb_model = xgb_model, X_train = dataX)
-# is the same as: using given shap_contrib
-# shap_long = shap.prep(shap_contrib = shap_values$shap_score, X_train = dataX)
-
-# **SHAP summary plot**
 gshap = shap.plot.summary(shap_long)
-ggsave(gshap, file = "../plots/meta/J48_SHAP_summary.pdf", width = 7.95, height = 8.89)
+ggsave(gshap, file = "../plots/meta/Rpart_SHAP_summary.pdf", width = 7.95, height = 8.89)
 
 # names(shap_values$mean_shap_score) has all feature names
 #  selecting the top 15 features
@@ -209,7 +195,7 @@ fig_list = lapply(features, function(feat.name) {
 	g.dep = shap.plot.dependence(data_long = shap_long, x = feat.name, y = feat.name, 
 		color_feature = feat.name)
 	g.dep = g.dep + labs(y = "SHAP values")
-	file.name = paste0(meta.dir, "J48_SHAP_", feat.name, " _dependence_shap_values.pdf")
+	file.name = paste0(meta.dir, "Rpart_SHAP_", feat.name, " _dependence_shap_values.pdf")
 	ggsave(g.dep, file = file.name, width = 3.6, height = 2.54)
 	return(g.dep)
 })
